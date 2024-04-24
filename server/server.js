@@ -10,6 +10,7 @@ const { expressMiddleware } = require("@apollo/server/express");
 // import two parts of graphQL schema
 const { typeDefs, resolvers } = require("./schemas");
 const db = require("./config/connection");
+const auth = require("./utils/auth");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +19,10 @@ const PORT = process.env.PORT || 3001;
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ({ req }) => {
+    const user = auth.authMiddleware({ req }).user;
+    return { user };
+  },
 });
 
 const startApolloServer = async () => {
