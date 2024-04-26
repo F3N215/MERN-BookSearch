@@ -76,3 +76,5 @@ const resolvers = {
     return User.find().select("-__v -password").populate("books");
   },
 };
+
+module.exports = resolvers;
