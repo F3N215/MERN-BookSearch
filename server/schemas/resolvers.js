@@ -39,12 +39,13 @@ const resolvers = {
       return { token, user };
     },
 
-    createUser async (parent, { username, email, password }) => {
-      const user = await User.create({username, email, password});
+    createUser: async (parent, { username, email, password }) => {
+      const user = await User.create({ username, email, password });
       const token = signToken(user);
 
       return { token, user };
     },
+
     saveBook: async (parent, { bookData }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
@@ -57,6 +58,7 @@ const resolvers = {
       }
       throw new AuthenticationError("You need to be logged in!");
     },
+
     removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
