@@ -16,7 +16,7 @@ export const LOGIN_USER = gql`
 // executes the addUser mutation set up using the gql tag
 export const ADD_USER = gql`
   mutation addUser($username: String!, $email: String!, $password: String!) {
-    createUser(username: $username, email: $email, password: $password) {
+    addUser(username: $username, email: $email, password: $password) {
       token
       user {
         _id
@@ -45,6 +45,7 @@ export const SAVE_BOOK = gql`
     }
   }
 `;
+
 // executes the remoeBook mutation set up using the gql tag
 export const REMOVE_BOOK = gql`
   mutation removeBook($bookId: String!) {
