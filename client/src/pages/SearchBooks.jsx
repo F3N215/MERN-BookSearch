@@ -8,24 +8,21 @@ import {
   Row
 } from 'react-bootstrap';
 
-import Auth from '../utils/auth';
-import { searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { useMutation } from '@apollo/client';
-import { SAVE_BOOK } from '../utils/mutations';
-import auth from '../utils/auth';
+import { useMutation } from "@apollo/react-hooks";
+import { SAVE_BOOK } from "../utils/mutations";
+import Auth from "../utils/auth";
+import { searchGoogleBooks } from "../utils/API";
+import { saveBookIds, getSavedBookIds } from "../utils/localStorage";
 
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
   // create state for holding our search field data
-  const [searchInput, setSearchInput] = useState('');
-
+  const [searchInput, setSearchInput] = useState("");
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
-  // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
@@ -61,6 +58,7 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
+
   // create saveBook mutation
   const [saveBook, {error}] = useMutation(SAVE_BOOK);
 
@@ -76,12 +74,14 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await saveBook({
+      // execute addUser mutation and pass in variable data from form
+      const { data } = await saveBook({
         variables: { bookInput: bookToSave },
       });
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
+      console.log(data);
+      // save id if successful
+      if (error) {
+        throw new Error("something went wrong!");
       }
 
       // if book successfully saves to user's account, save book id to state
