@@ -9,18 +9,16 @@ const resolvers = {
       if (context.user) {
         const userData = await User.findOne({ _id: context.user._id })
           .select("-__v -password")
-          .populate("book");
+          .populate("savedBooks");
         return userData;
       }
-      throw new AuthenticationError("Not logged in");
+      throw new AuthenticationError("You have to login first!");
     },
     users: async () => {
-      return User.find().select("-__v -password").populate("book");
+      return User.find().select("-__v -password").populate("books");
     },
-    user: async (parent, { username }) => {
-      return User.findOne({ username })
-        .select("-__v -password")
-        .populate("book");
+    user: async (parent, { _id }) => {
+      return User.findOne({ _id }).select("-__v -password").populate("book");
     },
   },
 
@@ -34,54 +32,59 @@ const resolvers = {
       if (!correctPw) {
         throw new AuthenticationError("Wrong password!");
       }
+      const token = signToken(user); // generates jwt token
+      return { token, user }; // returns token and user data
+    },
+
+    addUser: async (parent, { username, email, password }) => {
+      const user = await User.create({ username, email, password });
       const token = signToken(user);
       return { token, user };
     },
 
-    addUser: async (parent, args) => {
-      const user = await User.create(args);
-      const token = signToken(user);
-      return { token, user };
-    },
-
-    saveBook: async (parent, { bookInput }, context) => {
-      console.log(context.user);
-      console.log(bookInput);
-      if (context.user) {
-        const book = await User.findByIdAndUpdate(
-          { _id: context.user._id },
-          { $push: { savedBooks: bookInput } },
-          { new: true }
-        );
-        return book;
+    saveBook: async (
+      parent,
+      { bookId, authors, title, description, image, link },
+      context
+    ) => {
+      if (!context.user) {
+        throw new AuthenticationError("You need to be logged in!");
       }
-      throw new AuthenticationError("You need to be logged in!");
-    },
-
-    removeBook: async (parent, args, context) => {
-      console.log(args);
-      if (context.user) {
-        const book = await User.findByIdAndUpdate(
-          { _id: context.user._id },
-          { $pull: { savedBooks: args } },
-          { new: true }
-        );
-
-        return book;
-      }
-      throw new AuthenticationError("You need to be logged in!");
-    },
-
-    removeBook: async (parent, args, context) => {
-      if (context.user) {
+      try {
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: { bookId: args.bookId } } },
-          { new: true }
-        );
+          {
+            $addToSet: {
+              savedBooks: { bookId, authors, title, description, image, link },
+            },
+          },
+          { new: true, runValidators: true }
+        ).populate("savedBooks");
         return updatedUser;
+      } catch (err) {
+        console.error(err);
+        throw new Error("Something went wrong with these books!");
       }
-      throw new AuthenticationError("You need to be logged in!");
+    },
+
+    removeBook: async (parent, { bookId }, context) => {
+      if (!context.user) {
+        throw new AuthenticationError("You need to be logged in!");
+      }
+      try {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
+        ).populate("savedBooks");
+        if (!updatedUser) {
+          throw new Error("Couldn't find a user with this id!");
+        }
+        return updatedUser;
+      } catch (err) {
+        console.error(err);
+        throw new Error("You can't remove this book!");
+      }
     },
   },
 };
