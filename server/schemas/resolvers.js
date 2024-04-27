@@ -44,33 +44,45 @@ const resolvers = {
       return { token, user };
     },
 
-    saveBook: async (parent, { bookData }, context) => {
+    saveBook: async (parent, { bookInput }, context) => {
+      console.log(context.user);
+      console.log(bookInput);
       if (context.user) {
         const book = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $addToSet: { savedBooks: bookData } },
-          { new: true, runValidators: true }
+          { $push: { savedBooks: bookInput } },
+          { new: true }
         );
-        return updatedUser;
+        return book;
       }
       throw new AuthenticationError("You need to be logged in!");
     },
 
-    removeBook: async (parent, { bookId }, context) => {
+    removeBook: async (parent, args, context) => {
+      console.log(args);
       if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
+        const book = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: { bookId } } },
+          { $pull: { savedBooks: args } },
           { new: true }
         );
 
+        return book;
+      }
+      throw new AuthenticationError("You need to be logged in!");
+    },
+
+    removeBook: async (parent, args, context) => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId: args.bookId } } },
+          { new: true }
+        );
         return updatedUser;
       }
       throw new AuthenticationError("You need to be logged in!");
     },
-  },
-  users: async () => {
-    return User.find().select("-__v -password").populate("books");
   },
 };
 
