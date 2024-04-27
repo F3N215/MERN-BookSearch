@@ -3,7 +3,9 @@ const express = require("express");
 const path = require("path");
 
 // import ApolloServer
-const { ApolloServer } = require("apollo-server-express");
+// const { ApolloServer } = require("apollo-server-express");
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@apollo/server/express4");
 
 // middleware function for authentication
 const { authMiddleware } = require("./utils/auth");
@@ -19,28 +21,40 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   // context will be used for the the token authentication
-  context: authMiddleware,
 });
 
-// integrate Apollo server with the Express application as middleware
-server.start().then(() => {
-  server.applyMiddleware({ app });
-});
+// async function to start the ApolloServer
+const startApolloServer = async () => {
+  // integrate Apollo server with the Express application as middleware
+  await server.start();
+};
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// if we're in production, serve client/build as static assets
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
-}
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build/index.html"));
-});
+app.use(
+  "/graphql",
+  expressMiddleware(server, {
+    context: authMiddleware,
+  })
+);
 
+// react will pull  static assets from the build folder
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+}
+// // integrate Apollo server with the Express application as middleware
+// server.start().then(() => {
+//   server.applyMiddleware({ app });
+// });
 db.once("open", () => {
   app.listen(PORT, () => {
     console.log(`🌍 Now listening on localhost:${PORT}`);
     console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
   });
 });
+
+startApolloServer();
