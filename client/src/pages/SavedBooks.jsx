@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 import {
   Container,
   Card,
@@ -15,7 +15,7 @@ import { removeBookId } from "../utils/localStorage";
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
-  const [removeBook, { error }] = useMutation(REMOVE_BOOK);
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
   //debugger
   // reload user data using the GET_ME call
@@ -25,38 +25,32 @@ const SavedBooks = () => {
   // function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-
     if (!token) {
       return false;
     }
 
     try {
-      // eslint-disable-next-line
-      const { data } = await removeBook({
+      await removeBook({
         variables: { bookId },
       });
-
-      if (error) {
-        throw new Error("something went wrong!");
-      }
-
-      // upon success, remove book's id from localStorage
+      // Removing from local storage
       removeBookId(bookId);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   // if data isn't here yet, say so
-  if (loading) {
-    return <h2>LOADING...</h2>;
+  if (loading) return <h2>Loading...</h2>;
+  if (!data || !data.me.savedBooks || data.me.savedBooks.length === 0) {
+    return <h2>You have an empty library!</h2>;
   }
 
   return (
     <>
       <div fluid className="text-light bg-dark p-5">
         <Container>
-          <h1>Viewing saved books!</h1>
+          <h1>Viewing your library!</h1>
         </Container>
       </div>
       <Container>
