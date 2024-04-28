@@ -30,17 +30,11 @@ const LoginForm = () => {
       const { data } = await login({
         variables: { ...userFormData },
       });
-
-      if (!data) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
-    } catch (err) {
+      
+    // if login is successful, save token to localStorage and login user
+  } catch (err) {
+      Auth.login(data.login.token); 
       console.error(err);
-      setShowAlert(true);
     }
 
     setUserFormData({
