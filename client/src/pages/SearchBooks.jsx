@@ -22,6 +22,9 @@ const SearchBooks = () => {
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
+  // define graphql hook for saving a hook
+  const [saveBookMutation] = useMutation(SAVE_BOOK);
+
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
@@ -37,10 +40,6 @@ const SearchBooks = () => {
 
     try {
       const response = await searchGoogleBooks(searchInput);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
 
       const { items } = await response.json();
 
@@ -75,16 +74,13 @@ const SearchBooks = () => {
 
     try {
       // execute addUser mutation and pass in variable data from form
-      const { data } = await saveBook({
-        variables: { bookInput: bookToSave },
+      await saveBookMutation({
+        variables: bookToSave,
       });
-      console.log(data);
-      // save id if successful
-      if (error) {
-        throw new Error("something went wrong!");
-      }
 
       // if book successfully saves to user's account, save book id to state
+      setSavedBookIds((prevSavedBookIds) => [...prevSavedBookIds, bookToSave.bookId]);
+      
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
