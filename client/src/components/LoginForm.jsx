@@ -30,7 +30,7 @@ const LoginForm = () => {
       const { data } = await login({
         variables: { ...userFormData },
       });
-      
+
     // if login is successful, save token to localStorage and login user
   } catch (err) {
       Auth.login(data.login.token); 
@@ -46,10 +46,14 @@ const LoginForm = () => {
 
   return (
     <>
+      {/* Form for user login */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+        {/* Alert to show if login credentials are incorrect */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your login credentials!
         </Alert>
+
+        {/* Email input field */}
         <Form.Group className='mb-3'>
           <Form.Label htmlFor='email'>Email</Form.Label>
           <Form.Control
@@ -63,6 +67,7 @@ const LoginForm = () => {
           <Form.Control.Feedback type='invalid'>Email is required!</Form.Control.Feedback>
         </Form.Group>
 
+        {/* Password input field */}
         <Form.Group className='mb-3'>
           <Form.Label htmlFor='password'>Password</Form.Label>
           <Form.Control
@@ -75,6 +80,8 @@ const LoginForm = () => {
           />
           <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
         </Form.Group>
+
+        {/* Submit button */}
         <Button
           disabled={!(userFormData.email && userFormData.password)}
           type='submit'
@@ -82,8 +89,16 @@ const LoginForm = () => {
           Submit
         </Button>
       </Form>
+
+      {/* Display error message if there's an error */}
+      {error && (
+        <div className="my-3 p-3 bg-danger text-white">
+          {error.message}
+        </div>
+      )}
     </>
   );
 };
 
+// export LoginForm component
 export default LoginForm;
