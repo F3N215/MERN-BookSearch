@@ -1,14 +1,9 @@
 //  Implement the Apollo Server and apply it to the Express server as middleware.
 const express = require("express");
-const path = require("path");
-
-// import ApolloServer
-// const { ApolloServer } = require("apollo-server-express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
-
-// middleware function for authentication
-const { authMiddleware } = require("./utils/auth");
+const path = require("path");
+const { authMiddleware } = require("./utils/auth"); // middleware function for authentication
 
 // import typeDefs and resolvers
 const { typeDefs, resolvers } = require("./schemas");
@@ -42,6 +37,7 @@ app.use(
 // react will pull  static assets from the build folder
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
+
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../client/dist/index.html"));
   });
