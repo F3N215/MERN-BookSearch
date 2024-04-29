@@ -32,8 +32,8 @@ const LoginForm = () => {
       });
 
     // if login is successful, save token to localStorage and login user
+    Auth.login(data.login.token); 
   } catch (err) {
-      Auth.login(data.login.token); 
       console.error(err);
     }
 

@@ -6,7 +6,7 @@ const typeDefs = `
     _id: ID
     username: String
     email: String
-    password: String
+    password: Int
     savedBooks: [Book]
     bookCount: Int
   }
