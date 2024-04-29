@@ -17,9 +17,6 @@ const resolvers = {
     users: async () => {
       return User.find().select("-__v -password").populate("books");
     },
-    user: async (parent, { _id }) => {
-      return User.findOne({ _id }).select("-__v -password").populate("book");
-    },
   },
 
   Mutation: {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Col,
@@ -25,10 +25,10 @@ const SearchBooks = () => {
   // define graphql hook for saving a hook
   const [saveBookMutation] = useMutation(SAVE_BOOK);
 
-  // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
-  useEffect(() => {
-    return () => saveBookIds(savedBookIds);
-  });
+  // // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
+  // useEffect(() => {
+  //   return () => saveBookIds(savedBookIds);
+  // });
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -49,6 +49,7 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
+        link: book.volumeInfo.infoLink
       }));
 
       setSearchedBooks(bookData);
@@ -57,9 +58,6 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
-  // create saveBook mutation
-  const [saveBook, {error}] = useMutation(SAVE_BOOK);
 
   // create function to handle saving a book to our database
   const handleSaveBook = async (bookId) => {

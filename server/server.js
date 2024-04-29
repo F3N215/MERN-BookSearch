@@ -10,10 +10,11 @@ const { typeDefs, resolvers } = require("./schemas");
 // Import database connection
 const db = require("./config/connection");
 
-// Define port for server
-const PORT = process.env.PORT || 3001;
 // Initialize Express application
 const app = express();
+// Define port for server
+const PORT = process.env.PORT || 3001;
+
 // Initialize Apollo Server with defined schema and resolvers
 const server = new ApolloServer({
   typeDefs,
