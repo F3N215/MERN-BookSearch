@@ -30,6 +30,7 @@
 * `login` to the app once it opens it in your browser
 * using the API, search for your favourite books and click `submit`
 * `add` your desired book to your saved books
+* NOTE: Deployment link is still under construction!
 
 -----
 ## About Me
